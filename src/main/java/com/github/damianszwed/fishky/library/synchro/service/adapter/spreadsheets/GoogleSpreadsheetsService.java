@@ -3,11 +3,14 @@ package com.github.damianszwed.fishky.library.synchro.service.adapter.spreadshee
 import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsService;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class GoogleSpreadsheetsService implements SpreadsheetsService {
     private final Sheets service;
     private final String spreadsheetId;
@@ -22,22 +25,18 @@ public class GoogleSpreadsheetsService implements SpreadsheetsService {
     @Override
     public Optional<List<List<String>>> getLibraryValues() {
         try {
-            //TODO(Damian.Szwed) uporzadkowac, zwrocic wartosc
-            ValueRange response = service.spreadsheets().values()
+            final ValueRange response = service.spreadsheets().values()
                     .get(spreadsheetId, range)
                     .execute();
-            List<List<Object>> values = response.getValues();
-            if (values == null || values.isEmpty()) {
-                System.out.println("No data found.");
-            } else {
-                System.out.println("Name, Major");
-                for (List row : values) {
-                    System.out.printf("%s, %s\n", row.get(0), row.get(1));
-                }
-            }
-            return Optional.empty();
+            return Optional.ofNullable(response.getValues())
+                    .filter(lists -> !lists.isEmpty())
+                    .map(lists -> lists.stream()
+                            .map(objects -> objects.stream()
+                                    .map(String::valueOf)
+                                    .collect(Collectors.toList()))
+                            .collect(Collectors.toList()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("An error occurred.", e);
             return Optional.empty();
         }
     }
