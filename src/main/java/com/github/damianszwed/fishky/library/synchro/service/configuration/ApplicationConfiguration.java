@@ -5,6 +5,7 @@ import com.github.damianszwed.fishky.library.synchro.service.adapter.spreadsheet
 import com.github.damianszwed.fishky.library.synchro.service.business.LibrarySynchroServiceImplementation;
 import com.github.damianszwed.fishky.library.synchro.service.port.LibrarySynchroService;
 import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsService;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,7 +22,8 @@ public class ApplicationConfiguration {
 
     @Bean
     public SpreadsheetsService spreadsheetsService(ApplicationProperties applicationProperties) throws GeneralSecurityException, IOException {
-        return GoogleSpreadsheetServiceFactory.provide(applicationProperties);
+        return GoogleSpreadsheetServiceFactory.provide(applicationProperties)
+                .orElseThrow(() -> new BeanCreationException("Cannot create SpreadsheetsService. Check the errors above."));
     }
 
     @Bean
