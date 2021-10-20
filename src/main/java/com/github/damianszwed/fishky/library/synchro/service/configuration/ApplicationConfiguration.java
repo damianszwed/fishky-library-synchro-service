@@ -8,6 +8,7 @@ import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsSe
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -27,8 +28,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public LibrarySynchroService librarySynchroService(SpreadsheetsService spreadsheetsService) {
-        return new LibrarySynchroServiceImplementation(spreadsheetsService);
+    public LibrarySynchroService librarySynchroService(SpreadsheetsService spreadsheetsService, WebClient webClient) {
+        return new LibrarySynchroServiceImplementation(spreadsheetsService, webClient);
     }
 
     @Bean
