@@ -3,9 +3,9 @@ package com.github.damianszwed.fishky.library.synchro.service.business;
 import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsService;
 import com.github.damianszwed.fishky.library.synchro.service.port.flashcard.Flashcard;
 import com.github.damianszwed.fishky.library.synchro.service.port.flashcard.FlashcardFolder;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import lombok.extern.slf4j.Slf4j;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +30,7 @@ public class FlashcardFoldersMapper {
         return spreadsheetLines
                 .stream()
                 .map(FlashcardFoldersMapper::toTupleByFolderName)
-                .collect(groupingBy(Tuple2::_1))
+                .collect(groupingBy(Tuple2::getT1))
                 .entrySet()
                 .stream()
                 .map(FlashcardFoldersMapper::toFolder)
@@ -41,7 +41,7 @@ public class FlashcardFoldersMapper {
         final String folderName = spreadsheetLine.get(0);
         final String question = spreadsheetLine.get(1);
         final List<String> answers = spreadsheetLine.subList(2, spreadsheetLine.size());
-        return Tuple.of(folderName, Flashcard.builder()
+        return Tuples.of(folderName, Flashcard.builder()
                 .question(question)
                 .answers(answers)
                 .build());
@@ -55,7 +55,7 @@ public class FlashcardFoldersMapper {
     }
 
     private static List<Flashcard> toFlashcards(Map.Entry<String, List<Tuple2<String, Flashcard>>> entry) {
-        return entry.getValue().stream().map(tuple2 -> tuple2._2)
+        return entry.getValue().stream().map(Tuple2::getT2)
                 .collect(Collectors.toList());
     }
 }
