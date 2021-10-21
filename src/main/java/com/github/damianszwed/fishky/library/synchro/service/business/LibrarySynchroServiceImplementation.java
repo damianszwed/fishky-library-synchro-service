@@ -5,6 +5,7 @@ import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsSe
 import com.github.damianszwed.fishky.library.synchro.service.port.flashcard.FlashcardFolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -26,19 +27,14 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
         log.info("Retrieved {} folders.", spreadsheetFlashcardFolders.size());
 
 
-        final Mono<List<FlashcardFolder>> serverFlashcardFolders = webClient.get()
-                .uri("flashcardFolders").retrieve().bodyToFlux(FlashcardFolder.class)
-                .collectList();
+        final Mono<List<FlashcardFolder>> serverFlashcardFolders = getServerFlashcardFolders();
 
         serverFlashcardFolders.subscribe(folders -> {
             log.info("Flashcard folders on server: {}.", folders.size());
             removeDanglingFolders(spreadsheetFlashcardFolders, folders);
             removeDanglingFlashcards(spreadsheetFlashcardFolders, folders);
-
+            createFolders(spreadsheetFlashcardFolders).subscribe();
         });
-
-
-        //TODO(Damian.Szwed) Pobierz wszystkie library foldery[DONE]
 
         //TODO(Damian.Szwed) Usun foldery nieistniejace w spreadsheet
 
@@ -46,6 +42,24 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
 
         //TODO(Damian.Szwed) Tworz foldery i zapisz wszystkie fishky
         //TODO(Damian.Szwed) Klucz google  oraz application-production.properties ma byc konfigurowalny dla dockera
+    }
+
+    private Flux<FlashcardFolder> createFolders(List<FlashcardFolder> spreadsheetFlashcardFolders) {
+        return Flux.fromIterable(spreadsheetFlashcardFolders)
+                .flatMap(flashcardFolder -> webClient.post()
+                        .uri("flashcardFolders")
+                        .body(Mono.just(flashcardFolder), FlashcardFolder.class)
+                        .exchangeToMono(clientResponse -> {
+                            log.info("Creating folder finished with status code: {}.",
+                                    clientResponse.statusCode());
+                            return Mono.just(flashcardFolder);
+                        }));
+    }
+
+    private Mono<List<FlashcardFolder>> getServerFlashcardFolders() {
+        return webClient.get()
+                .uri("flashcardFolders").retrieve().bodyToFlux(FlashcardFolder.class)
+                .collectList();
     }
 
     private void removeDanglingFolders(List<FlashcardFolder> spreadsheetFlashcardFolders, List<FlashcardFolder> folders) {
@@ -58,7 +72,7 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
     }
 
     private void removeDanglingFlashcards(List<FlashcardFolder> spreadsheetFlashcardFolders, List<FlashcardFolder> folders) {
-
+        //TODO(Damian.Szwed) implementation
     }
 
 }
