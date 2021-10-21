@@ -16,7 +16,11 @@ public class ScheduledService {
     @Scheduled(fixedRateString = "${fishky.scheduled-rate}")
     public void execute() {
         log.info("Executing librarySynchroService.synchronize().");
-        librarySynchroService.synchronize();
+        try {
+            librarySynchroService.synchronize();
+        } catch (Exception e) {
+            log.error("An error occurred on librarySynchroService.synchronize().", e);
+        }
         log.info("End of the librarySynchroService.synchronize().");
     }
 }
