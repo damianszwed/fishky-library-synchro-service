@@ -6,6 +6,7 @@ import com.github.damianszwed.fishky.library.synchro.service.business.LibrarySyn
 import com.github.damianszwed.fishky.library.synchro.service.port.LibrarySynchroService;
 import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsService;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,13 +18,11 @@ import java.security.GeneralSecurityException;
 public class ApplicationConfiguration {
 
     @Bean
-    public ApplicationProperties applicationProperties() {
-        return new ApplicationProperties();
-    }
-
-    @Bean
-    public SpreadsheetsService spreadsheetsService(ApplicationProperties applicationProperties) throws GeneralSecurityException, IOException {
-        return GoogleSpreadsheetServiceFactory.provide(applicationProperties)
+    public SpreadsheetsService spreadsheetsService(
+            @Value("${fishky.spreadsheet-id}") String spreadsheetId,
+            @Value("${fishky.spreadsheet-range}") String spreadsheetRange
+    ) throws GeneralSecurityException, IOException {
+        return GoogleSpreadsheetServiceFactory.provide(spreadsheetId, spreadsheetRange)
                 .orElseThrow(() -> new BeanCreationException("Cannot create SpreadsheetsService. Check the errors above."));
     }
 
