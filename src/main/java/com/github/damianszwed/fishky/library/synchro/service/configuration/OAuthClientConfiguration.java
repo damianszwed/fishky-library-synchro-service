@@ -39,12 +39,14 @@ public class OAuthClientConfiguration {
     }
 
     @Bean
-    WebClient webClient(ReactiveClientRegistrationRepository clientRegistrations) {
+    WebClient webClient(ReactiveClientRegistrationRepository clientRegistrations,
+                        @Value("${fishky.flashcard-service-url}") String flashcardServiceUrl) {
         InMemoryReactiveOAuth2AuthorizedClientService clientService = new InMemoryReactiveOAuth2AuthorizedClientService(clientRegistrations);
         AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager authorizedClientManager = new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(clientRegistrations, clientService);
         ServerOAuth2AuthorizedClientExchangeFilterFunction oauth = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
         oauth.setDefaultClientRegistrationId("okta");
         return WebClient.builder()
+                .baseUrl(flashcardServiceUrl)
                 .filter(oauth)
                 .build();
 

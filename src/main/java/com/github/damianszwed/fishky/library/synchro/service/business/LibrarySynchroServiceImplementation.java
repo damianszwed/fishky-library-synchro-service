@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class LibrarySynchroServiceImplementation implements LibrarySynchroService {
@@ -21,22 +22,43 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
 
     @Override
     public void synchronize() {
-        final List<FlashcardFolder> flashcardFolders = FlashcardFoldersMapper.get(spreadsheetsService);
-        log.info("Retrieved {} folders.", flashcardFolders.size());
+        final List<FlashcardFolder> spreadsheetFlashcardFolders = FlashcardFoldersMapper.get(spreadsheetsService);
+        log.info("Retrieved {} folders.", spreadsheetFlashcardFolders.size());
 
-        webClient.get()
-                .uri("http://localhost:8080/flashcardFolders")//TODO(Damian.Szwed) flashcard service URI configurable
-                .exchangeToMono(clientResponse -> {
-                    log.info("clientResponse.headers() =  {}", clientResponse.headers());
-                    log.info("clientResponse.statusCode() = {}", clientResponse.statusCode());
-                    return Mono.just(clientResponse);
-                })
-                .subscribe();
 
-        //TODO(Damian.Szwed) Pobierz wszystkie library foldery
+        final Mono<List<FlashcardFolder>> serverFlashcardFolders = webClient.get()
+                .uri("flashcardFolders").retrieve().bodyToFlux(FlashcardFolder.class)
+                .collectList();
+
+        serverFlashcardFolders.subscribe(folders -> {
+            log.info("Flashcard folders on server: {}.", folders.size());
+            removeDanglingFolders(spreadsheetFlashcardFolders, folders);
+            removeDanglingFlashcards(spreadsheetFlashcardFolders, folders);
+
+        });
+
+
+        //TODO(Damian.Szwed) Pobierz wszystkie library foldery[DONE]
+
         //TODO(Damian.Szwed) Usun foldery nieistniejace w spreadsheet
+
         //TODO(Damian.Szwed) Usun fishky w poszczegolnych folderach
+
+        //TODO(Damian.Szwed) Tworz foldery i zapisz wszystkie fishky
         //TODO(Damian.Szwed) Klucz google  oraz application-production.properties ma byc konfigurowalny dla dockera
+    }
+
+    private void removeDanglingFolders(List<FlashcardFolder> spreadsheetFlashcardFolders, List<FlashcardFolder> folders) {
+        final List<String> spreadsheetFolderNames = spreadsheetFlashcardFolders.stream().map(FlashcardFolder::getName).collect(Collectors.toList());
+        final List<FlashcardFolder> foldersToRemove = folders.stream().filter(flashcardFolder -> {
+            return !spreadsheetFolderNames.contains(flashcardFolder.getName());
+        }).collect(Collectors.toList());
+        log.info("There is {} folders to remove.", foldersToRemove.size());
+        //TODO(Damian.Szwed) remove folders.
+    }
+
+    private void removeDanglingFlashcards(List<FlashcardFolder> spreadsheetFlashcardFolders, List<FlashcardFolder> folders) {
+
     }
 
 }
