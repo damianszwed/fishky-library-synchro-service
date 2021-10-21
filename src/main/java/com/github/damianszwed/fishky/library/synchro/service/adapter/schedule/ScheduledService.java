@@ -13,7 +13,7 @@ public class ScheduledService {
         this.librarySynchroService = librarySynchroService;
     }
 
-    @Scheduled(fixedRateString = "${fishky.scheduledRate}")
+    @Scheduled(fixedRateString = "${fishky.scheduled-rate}")
     public void execute() {
         log.info("Executing librarySynchroService.synchronize().");
         librarySynchroService.synchronize();

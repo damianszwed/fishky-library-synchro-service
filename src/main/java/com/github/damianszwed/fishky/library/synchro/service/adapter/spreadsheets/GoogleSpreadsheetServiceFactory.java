@@ -1,6 +1,5 @@
 package com.github.damianszwed.fishky.library.synchro.service.adapter.spreadsheets;
 
-import com.github.damianszwed.fishky.library.synchro.service.configuration.ApplicationProperties;
 import com.github.damianszwed.fishky.library.synchro.service.port.SpreadsheetsService;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -45,21 +44,14 @@ public class GoogleSpreadsheetServiceFactory {
         }
     }
 
-    private static SpreadsheetsService getU(ApplicationProperties applicationProperties, NetHttpTransport HTTP_TRANSPORT, Credential credential) {
-        final Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-        return new GoogleSpreadsheetsService(service, applicationProperties.getSpreadsheetId(), applicationProperties.getSpreadsheetRange());
-    }
-
-    public static Optional<SpreadsheetsService> provide(ApplicationProperties applicationProperties) throws GeneralSecurityException, IOException {
+    public static Optional<SpreadsheetsService> provide(String spreadsheetId, String spreadsheetRange) throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         return getCredential()
                 .map(credential -> {
                     final Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                             .setApplicationName(APPLICATION_NAME)
                             .build();
-                    return new GoogleSpreadsheetsService(service, applicationProperties.getSpreadsheetId(), applicationProperties.getSpreadsheetRange());
+                    return new GoogleSpreadsheetsService(service, spreadsheetId, spreadsheetRange);
                 });
     }
 }
