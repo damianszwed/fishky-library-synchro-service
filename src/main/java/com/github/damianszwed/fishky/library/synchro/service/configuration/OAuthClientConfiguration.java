@@ -3,6 +3,7 @@ package com.github.damianszwed.fishky.library.synchro.service.configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -15,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 /**
  * Inspired by https://developer.okta.com/blog/2021/05/05/client-credentials-spring-security
  */
+@Profile("production")
 @Configuration
 public class OAuthClientConfiguration {
 
