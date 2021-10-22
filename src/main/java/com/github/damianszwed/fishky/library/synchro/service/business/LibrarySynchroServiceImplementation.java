@@ -26,22 +26,11 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
         final List<FlashcardFolder> spreadsheetFlashcardFolders = FlashcardFoldersMapper.get(spreadsheetsService);
         log.info("Retrieved {} folders.", spreadsheetFlashcardFolders.size());
 
-
-        final Mono<List<FlashcardFolder>> serverFlashcardFolders = getServerFlashcardFolders();
-
-        serverFlashcardFolders.subscribe(folders -> {
+        getServerFlashcardFolders().subscribe(folders -> {
             log.info("Flashcard folders on server: {}.", folders.size());
             removeDanglingFolders(spreadsheetFlashcardFolders, folders);
-            removeDanglingFlashcards(spreadsheetFlashcardFolders, folders);
             createFolders(spreadsheetFlashcardFolders).subscribe();
         });
-
-        //TODO(Damian.Szwed) Usun foldery nieistniejace w spreadsheet
-
-        //TODO(Damian.Szwed) Usun fishky w poszczegolnych folderach
-
-        //TODO(Damian.Szwed) Tworz foldery i zapisz wszystkie fishky
-        //TODO(Damian.Szwed) Klucz google  oraz application-production.properties ma byc konfigurowalny dla dockera
     }
 
     private Flux<FlashcardFolder> createFolders(List<FlashcardFolder> spreadsheetFlashcardFolders) {
@@ -50,7 +39,8 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
                         .uri("flashcardFolders")
                         .body(Mono.just(flashcardFolder), FlashcardFolder.class)
                         .exchangeToMono(clientResponse -> {
-                            log.info("Creating folder finished with status code: {}.",
+                            log.info("Creating folder {} finished with status code: {}.",
+                                    flashcardFolder.getName(),
                                     clientResponse.statusCode());
                             return Mono.just(flashcardFolder);
                         }));
@@ -64,15 +54,16 @@ public class LibrarySynchroServiceImplementation implements LibrarySynchroServic
 
     private void removeDanglingFolders(List<FlashcardFolder> spreadsheetFlashcardFolders, List<FlashcardFolder> folders) {
         final List<String> spreadsheetFolderNames = spreadsheetFlashcardFolders.stream().map(FlashcardFolder::getName).collect(Collectors.toList());
-        final List<FlashcardFolder> foldersToRemove = folders.stream().filter(flashcardFolder -> {
-            return !spreadsheetFolderNames.contains(flashcardFolder.getName());
-        }).collect(Collectors.toList());
+        final List<FlashcardFolder> foldersToRemove = folders.stream().filter(flashcardFolder -> !spreadsheetFolderNames.contains(flashcardFolder.getName())).collect(Collectors.toList());
         log.info("There is {} folders to remove.", foldersToRemove.size());
-        //TODO(Damian.Szwed) remove folders.
-    }
-
-    private void removeDanglingFlashcards(List<FlashcardFolder> spreadsheetFlashcardFolders, List<FlashcardFolder> folders) {
-        //TODO(Damian.Szwed) implementation
+        Flux.fromIterable(foldersToRemove)
+                .flatMap(flashcardFolder -> webClient.delete()
+                        .uri("/flashcardFolders/{folderId}",
+                                flashcardFolder.getId())
+                        .exchangeToMono(Mono::just))
+                .map(clientResponse -> "Removing folder finished with status code: " +
+                        clientResponse.statusCode() + ".")
+                .subscribe(log::info);
     }
 
 }
