@@ -1,17 +1,28 @@
 plugins {
 	id 'org.springframework.boot' version '2.5.5'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'com.palantir.docker' version '0.26.0'
 	id 'java'
 }
 
 group = 'com.github.damianszwed'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+}
+
+jar {
+	enabled = false
+	archiveClassifier.set('')
+}
+
+docker {
+	name "${jar.archiveBaseName.get()}:${version}"
+	files jar.archiveFile
+	buildArgs(['JAR_FILE': "${jar.archiveFileName.get()}"])
 }
 
 repositories {
@@ -33,4 +44,13 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+task tagDockerImage(type: Exec) {
+	commandLine 'docker', 'tag', "fishky-library-synchro-service:${version}", "damianiero/fishky-library-synchro-service:${version}"
+}
+
+task pushDockerImage(type: Exec) {
+	dependsOn tagDockerImage
+	commandLine 'docker', 'push', "damianiero/fishky-library-synchro-service:${version}"
 }
