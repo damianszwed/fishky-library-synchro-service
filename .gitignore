@@ -6,6 +6,8 @@ build/
 !**/src/test/**/build/
 src/main/resources/credentials.json
 src/main/resources/application-production.properties
+credentials.json
+application-production.properties
 
 ### STS ###
 .apt_generated
