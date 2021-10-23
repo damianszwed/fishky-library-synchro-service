@@ -11,6 +11,8 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -23,15 +25,23 @@ public class GoogleSpreadsheetServiceFactory {
     private static final String APPLICATION_NAME = "Fishky Library Synchro Service";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
-    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 
     private static Optional<Credential> getCredential() {
-        return Optional.ofNullable(GoogleSpreadsheetServiceFactory.class.getResourceAsStream(CREDENTIALS_FILE_PATH))
+        return getCredentialsStream()
                 .map(GoogleSpreadsheetServiceFactory::getCredentialFromStream)
                 .orElseGet(() -> {
                     log.error("Resource not found: {}", CREDENTIALS_FILE_PATH);
                     return Optional.empty();
                 });
+    }
+
+    private static Optional<InputStream> getCredentialsStream() {
+        try {
+            return Optional.of(new FileInputStream(CREDENTIALS_FILE_PATH));
+        } catch (FileNotFoundException e) {
+            return Optional.empty();
+        }
     }
 
     private static Optional<Credential> getCredentialFromStream(InputStream inputStream) {
