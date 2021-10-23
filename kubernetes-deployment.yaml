@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fishky-library-synchro-service
+spec:
+  selector:
+    matchLabels:
+      app: fishky-library-synchro-service
+      tier: backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fishky-library-synchro-service
+        tier: backend
+    spec:
+      containers:
+      - name: fishky-library-synchro-service
+        image: damianiero/fishky-library-synchro-service:0.0.3
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        ports:
+          - containerPort: 8080
+        volumeMounts:
+        - name: fishky-library-synchro-secret
+          mountPath: "/app/application.properties"
+          readOnly: true
+          subPath: application.properties
+        - name: fishky-library-synchro-secret
+          mountPath: "/app/credentials.json"
+          readOnly: true
+          subPath: credentials.json
+      volumes:
+      - name: fishky-library-synchro-secret
+        secret:
+          secretName: fishky-library-synchro-secret
+#        readinessProbe:
+#          httpGet:
+#            path: /healthCheck
+#            port: 8080
+#          initialDelaySeconds: 60
+#          timeoutSeconds: 2
+#          periodSeconds: 3
+#          failureThreshold: 2
+#        livenessProbe:
+#          httpGet:
+#            path: /healthCheck
+#            port: 8080
+#          initialDelaySeconds: 90
+#          timeoutSeconds: 2
+#          periodSeconds: 8
+#          failureThreshold: 1
