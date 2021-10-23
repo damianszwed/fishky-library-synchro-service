@@ -46,6 +46,14 @@ test {
 	useJUnitPlatform()
 }
 
+task updateVersion {
+	doLast {
+		ant.replaceregexp(match: 'image: damianiero/fishky-library-synchro-service:(.*)', replace: "image: damianiero/fishky-library-synchro-service:${version}", flags: 'g', byline: true) {
+			fileset(dir: '.', includes: 'kubernetes-deployment.yaml')
+		}
+	}
+}
+
 task tagDockerImage(type: Exec) {
 	commandLine 'docker', 'tag', "fishky-library-synchro-service:${version}", "damianiero/fishky-library-synchro-service:${version}"
 }
