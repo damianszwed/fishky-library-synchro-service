@@ -31,6 +31,13 @@ spec:
           mountPath: "/app/credentials.json"
           readOnly: true
           subPath: credentials.json
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
       volumes:
       - name: fishky-library-synchro-secret
         secret:
