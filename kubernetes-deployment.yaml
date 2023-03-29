@@ -16,10 +16,12 @@ spec:
     spec:
       containers:
       - name: fishky-library-synchro-service
-        image: damianiero/fishky-library-synchro-service:0.1.4
+        image: damianiero/fishky-library-synchro-service:0.2.0
         env:
         - name: GET_HOSTS_FROM
           value: dns
+        - name: SPRING_PROFILES_ACTIVE
+          value: production,elasticsearch
         ports:
           - containerPort: 8080
         volumeMounts:
@@ -31,13 +33,13 @@ spec:
           mountPath: "/app/credentials.json"
           readOnly: true
           subPath: credentials.json
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+#        resources:
+#          requests:
+#            memory: "512Mi"
+#            cpu: "400m"
+#          limits:
+#            memory: "512Mi"
+#            cpu: "400m"
       volumes:
       - name: fishky-library-synchro-secret
         secret:
