@@ -5,15 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Slf4j
-public class ScheduledLibrarySynchroServiceService {
+public class ScheduledLibrarySynchroService {
 
     private final LibrarySynchroService librarySynchroService;
 
-    public ScheduledLibrarySynchroServiceService(LibrarySynchroService librarySynchroService) {
+    public ScheduledLibrarySynchroService(LibrarySynchroService librarySynchroService) {
         this.librarySynchroService = librarySynchroService;
     }
 
-    @Scheduled(fixedRateString = "${fishky.scheduled-rate}")
+    @Scheduled(fixedRateString = "${fishky.scheduled-elasticsearch-reindex-rate}", initialDelay = 10000)
     public void execute() {
         log.info("Executing librarySynchroService.synchronize().");
         try {

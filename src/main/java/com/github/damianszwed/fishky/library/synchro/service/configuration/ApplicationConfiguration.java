@@ -1,6 +1,6 @@
 package com.github.damianszwed.fishky.library.synchro.service.configuration;
 
-import com.github.damianszwed.fishky.library.synchro.service.adapter.schedule.ScheduledLibrarySynchroServiceService;
+import com.github.damianszwed.fishky.library.synchro.service.adapter.schedule.ScheduledLibrarySynchroService;
 import com.github.damianszwed.fishky.library.synchro.service.adapter.spreadsheets.GoogleSpreadsheetServiceFactory;
 import com.github.damianszwed.fishky.library.synchro.service.business.LibrarySynchroServiceImplementation;
 import com.github.damianszwed.fishky.library.synchro.service.port.LibrarySynchroService;
@@ -32,7 +32,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public ScheduledLibrarySynchroServiceService scheduledService(LibrarySynchroService librarySynchroService) {
-        return new ScheduledLibrarySynchroServiceService(librarySynchroService);
+    public ScheduledLibrarySynchroService scheduledService(LibrarySynchroService librarySynchroService) {
+        return new ScheduledLibrarySynchroService(librarySynchroService);
     }
 }
