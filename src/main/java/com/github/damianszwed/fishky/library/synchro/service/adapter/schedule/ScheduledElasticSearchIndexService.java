@@ -1,24 +1,23 @@
 package com.github.damianszwed.fishky.library.synchro.service.adapter.schedule;
 
-import com.github.damianszwed.fishky.library.synchro.service.port.ElasticSearchReindexService;
+import com.github.damianszwed.fishky.library.synchro.service.port.ReindexService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Slf4j
 public class ScheduledElasticSearchIndexService {
 
-    private final ElasticSearchReindexService elasticSearchReindexService;
+    private final ReindexService reindexService;
 
-    public ScheduledElasticSearchIndexService(ElasticSearchReindexService elasticSearchReindexService) {
-        this.elasticSearchReindexService = elasticSearchReindexService;
+    public ScheduledElasticSearchIndexService(ReindexService reindexService) {
+        this.reindexService = reindexService;
     }
 
-    @Scheduled(fixedRateString = "${fishky.scheduled-library-synchro-rate}", initialDelay = 30000)
-//    @Scheduled(fixedRateString = "${fishky.scheduled-library-synchro-rate}")//TODO(Damian.Szwed) uncomment this line and remove above one.
+    @Scheduled(fixedRateString = "${fishky.scheduled-library-synchro-rate}", initialDelay = 60000)
     public void execute() {
         log.info("Executing elasticSearchReindexService.reindex().");
         try {
-            elasticSearchReindexService.reindex();
+            reindexService.reindex();
         } catch (Exception e) {
             log.error("An error occurred on elasticSearchReindexService.reindex().", e);
         }
