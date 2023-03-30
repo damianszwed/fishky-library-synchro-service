@@ -1,28 +1,25 @@
 package com.github.damianszwed.fishky.library.synchro.service.configuration;
 
 import com.github.damianszwed.fishky.library.synchro.service.adapter.schedule.ScheduledElasticSearchIndexService;
-import com.github.damianszwed.fishky.library.synchro.service.port.ElasticSearchReindexService;
+import com.github.damianszwed.fishky.library.synchro.service.business.ElasticSearchReindexService;
+import com.github.damianszwed.fishky.library.synchro.service.port.ReindexService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @Profile("elasticsearch")
 public class ElasticSearchSynchroConfiguration {
 
     @Bean
-    ScheduledElasticSearchIndexService scheduledElasticSearchIndexService(ElasticSearchReindexService elasticSearchReindexService) {
-        return new ScheduledElasticSearchIndexService(elasticSearchReindexService);
+    ScheduledElasticSearchIndexService scheduledElasticSearchIndexService(ReindexService reindexService) {
+        return new ScheduledElasticSearchIndexService(reindexService);
     }
 
     @Bean
-    ElasticSearchReindexService elasticSearchReindexService() {
-        return new ElasticSearchReindexService() {
-            @Override
-            public void reindex() {
-                System.out.println("....");
-            }
-        };
+    ReindexService reindexService(WebClient webClient) {
+        return new ElasticSearchReindexService(webClient);
     }
 
 }

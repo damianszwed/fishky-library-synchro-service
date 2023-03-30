@@ -1,5 +1,5 @@
 package com.github.damianszwed.fishky.library.synchro.service.port;
 
-public interface ElasticSearchReindexService {
+public interface ReindexService {
     void reindex();
 }

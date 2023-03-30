@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: fishky-library-synchro-service
-        image: damianiero/fishky-library-synchro-service:0.2.0
+        image: damianiero/fishky-library-synchro-service:0.2.1
         env:
         - name: GET_HOSTS_FROM
           value: dns
